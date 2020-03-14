@@ -159,11 +159,18 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 	@autoreleasepool
 	{
 		pref = [[HBPreferences alloc] initWithIdentifier: @"com.johnzaro.perfectwidgets13prefs"];
+		[pref registerDefaults:
+		@{
+			@"alwaysExtendedWidgets": @NO,
+			@"hideClock": @NO,
+			@"hideWeatherProvided": @NO,
+			@"colorizeWidgets": @NO
+    	}];
 
-		[pref registerBool: &alwaysExtendedWidgets default: NO forKey: @"alwaysExtendedWidgets"];
-		[pref registerBool: &hideClock default: NO forKey: @"hideClock"];
-		[pref registerBool: &hideWeatherProvided default: NO forKey: @"hideWeatherProvided"];
-		[pref registerBool: &colorizeWidgets default: NO forKey: @"colorizeWidgets"];
+		alwaysExtendedWidgets = [pref boolForKey: @"alwaysExtendedWidgets"];
+		hideClock = [pref boolForKey: @"hideClock"];
+		hideWeatherProvided = [pref boolForKey: @"hideWeatherProvided"];
+		colorizeWidgets = [pref boolForKey: @"colorizeWidgets"];
 
 		if(alwaysExtendedWidgets) %init(alwaysExtendedWidgetsGroup);
 		if(hideClock) %init(hideClockGroup);
