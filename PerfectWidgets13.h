@@ -1,11 +1,25 @@
 #import <Cephei/HBPreferences.h>
+#import "SparkColourPickerUtils.h"
 
-HBPreferences *_Nullable pref;
+HBPreferences *pref;
 
-BOOL alwaysExtendedWidgets;
 BOOL hideClock;
 BOOL hideWeatherProvided;
-BOOL colorizeWidgets;
+BOOL alwaysExtendedWidgets;
+
+BOOL colorizeBackground;
+BOOL customBackgroundColorEnabled;
+NSString *customBackgroundColorString;
+UIColor *customBackgroundColor;
+
+BOOL colorizeBorder;
+BOOL customBorderColorEnabled;
+NSString *customBorderColorString;
+UIColor *customBorderColor;
+
+BOOL tranparentWidgetHeader;
+
+NSInteger widgetCorner;
 
 @interface WGWidgetListHeaderView: UIView
 @end
@@ -22,6 +36,7 @@ BOOL colorizeWidgets;
 @property(nonatomic, retain) UIColor *bgColor;
 @property(nonatomic, retain) UIColor *borderColor;
 - (WGWidgetListItemViewController*)listItem;
+- (UIView*)contentView;
 - (void)colorizeWidget;
 - (UIButton*)showMoreButton;
 @end
@@ -32,5 +47,6 @@ BOOL colorizeWidgets;
 @end
 
 @interface WGPlatterHeaderContentView: PLPlatterHeaderContentView
+- (NSArray*)iconButtons;
 @property(nonatomic, copy) NSArray *icons;
 @end

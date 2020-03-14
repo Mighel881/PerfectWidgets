@@ -114,36 +114,54 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 		if (![self listItem]) return;
 		
 		if(alwaysExtendedWidgets) [self.showMoreButton setHidden: YES];
-		
-		if(colorizeWidgets) [self colorizeWidget];
+
+		[self colorizeWidget];
 	}
 
 	%new
 	- (void)colorizeWidget
 	{
+		MTMaterialView *headerBackgroundView = MSHookIvar<MTMaterialView*>(self, "_headerBackgroundView");
+		MTMaterialView *backgroundView = MSHookIvar<MTMaterialView*>(self, "_backgroundView");
 		WGPlatterHeaderContentView *headerContentView = MSHookIvar<WGPlatterHeaderContentView*>(self, "_headerContentView");
-		if(headerContentView)
+
+		if(backgroundView && headerBackgroundView && headerContentView)
 		{
-			UIImage *appIcon = headerContentView.icons[0];
-			if(appIcon)
+			backgroundView.clipsToBounds = YES;
+			backgroundView.layer.cornerRadius = widgetCorner;
+
+			if(tranparentWidgetHeader) headerBackgroundView.alpha = 0;
+
+			if(colorizeBackground)
 			{
-				self.bgColor = [appIcon mergedColor];
-				if(self.bgColor)
+				if(customBackgroundColorEnabled) self.bgColor = customBackgroundColor;
+				else
 				{
-					self.borderColor = getContrastColorBasedOnBackgroundColor(self.bgColor);
+					UIImage *appIcon = headerContentView.icons[0];
+					if(appIcon) self.bgColor = [appIcon mergedColor];
+				}
 
-					if(MSHookIvar<MTMaterialView*>(self, "_headerBackgroundView"))
-						MSHookIvar<MTMaterialView*>(self, "_headerBackgroundView").alpha = 0;
+				if(self.bgColor) 
+				{
+					backgroundView.backgroundColor = self.bgColor;
+					if(!tranparentWidgetHeader) headerBackgroundView.backgroundColor = self.bgColor;
+				}
+			}
 
-					MTMaterialView *backgroundView = MSHookIvar<MTMaterialView*>(self, "_backgroundView");
-					if(backgroundView)
+			if(colorizeBorder)
+			{
+				if(customBorderColorEnabled) self.borderColor = customBorderColor;
+				else if(self.bgColor) self.borderColor = getContrastColorBasedOnBackgroundColor(self.bgColor);
+
+				if(self.borderColor)
+				{
+					backgroundView.layer.borderColor = self.borderColor.CGColor;
+					backgroundView.layer.borderWidth = 3.0f;
+
+					if(!tranparentWidgetHeader)
 					{
-						backgroundView.clipsToBounds = YES;
-						backgroundView.layer.cornerRadius = 13;
-						backgroundView.layer.borderWidth = 3.0f;
-
-						backgroundView.backgroundColor = self.bgColor;
-						backgroundView.layer.borderColor = self.borderColor.CGColor;
+						headerBackgroundView.layer.borderColor = self.borderColor.CGColor;
+						headerBackgroundView.layer.borderWidth = 3.0f;
 					}
 				}
 			}
@@ -164,17 +182,40 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 			@"alwaysExtendedWidgets": @NO,
 			@"hideClock": @NO,
 			@"hideWeatherProvided": @NO,
-			@"colorizeWidgets": @NO
+			@"colorizeBackground": @NO,
+			@"customBackgroundColorEnabled": @NO,
+			@"colorizeBorder": @NO,
+			@"customBorderColorEnabled": @NO,
+			@"tranparentWidgetHeader": @NO,
+			@"widgetCorner": @13
     	}];
 
 		alwaysExtendedWidgets = [pref boolForKey: @"alwaysExtendedWidgets"];
 		hideClock = [pref boolForKey: @"hideClock"];
 		hideWeatherProvided = [pref boolForKey: @"hideWeatherProvided"];
-		colorizeWidgets = [pref boolForKey: @"colorizeWidgets"];
+		colorizeBackground = [pref boolForKey: @"colorizeBackground"];
+		customBackgroundColorEnabled = [pref boolForKey: @"customBackgroundColorEnabled"];
+		colorizeBorder = [pref boolForKey: @"colorizeBorder"];
+		customBorderColorEnabled = [pref boolForKey: @"customBorderColorEnabled"];
+		tranparentWidgetHeader = [pref boolForKey: @"tranparentWidgetHeader"];
+		widgetCorner = [pref integerForKey: @"widgetCorner"];
+
+		if(customBackgroundColorEnabled || customBorderColorEnabled)
+		{
+			NSDictionary *preferencesDictionary = [NSDictionary dictionaryWithContentsOfFile: @"/var/mobile/Library/Preferences/com.johnzaro.perfectwidgets13prefs.colors.plist"];
+			if(preferencesDictionary)
+			{
+				customBackgroundColorString = [preferencesDictionary objectForKey: @"customBackgroundColor"];
+				customBorderColorString = [preferencesDictionary objectForKey: @"customBorderColor"];
+			}
+			
+			customBackgroundColor = [SparkColourPickerUtils colourWithString: customBackgroundColorString withFallback: @"#FF9400"];
+			customBorderColor = [SparkColourPickerUtils colourWithString: customBorderColorString withFallback: @"#FF9400"];
+		}
 
 		if(alwaysExtendedWidgets) %init(alwaysExtendedWidgetsGroup);
 		if(hideClock) %init(hideClockGroup);
 		if(hideWeatherProvided) %init(hideWeatherProvidedGroup);
-		if(alwaysExtendedWidgets || colorizeWidgets) %init(colorizeWidgetsGroup);
+		%init(colorizeWidgetsGroup);
 	}
 }

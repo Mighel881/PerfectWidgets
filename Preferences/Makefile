@@ -8,6 +8,7 @@ PerfectWidgets13Prefs_FILES = PWGAppearanceSettings.m PWGRootHeaderView.mm PWGRo
 PerfectWidgets13Prefs_INSTALL_PATH = /Library/PreferenceBundles
 PerfectWidgets13Prefs_FRAMEWORKS = UIKit
 PerfectWidgets13Prefs_PRIVATE_FRAMEWORKS = Preferences
+PerfectWidgets13Prefs_LIBRARIES = sparkcolourpicker
 PerfectWidgets13Prefs_CFLAGS = -fobjc-arc -Wno-deprecated-declarations
 PerfectWidgets13Prefs_EXTRA_FRAMEWORKS = Cephei CepheiPrefs
 
