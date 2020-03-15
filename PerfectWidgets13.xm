@@ -123,9 +123,8 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 	{
 		MTMaterialView *headerBackgroundView = MSHookIvar<MTMaterialView*>(self, "_headerBackgroundView");
 		MTMaterialView *backgroundView = MSHookIvar<MTMaterialView*>(self, "_backgroundView");
-		WGPlatterHeaderContentView *headerContentView = MSHookIvar<WGPlatterHeaderContentView*>(self, "_headerContentView");
 
-		if(backgroundView && headerBackgroundView && headerContentView)
+		if(backgroundView && headerBackgroundView)
 		{
 			backgroundView.clipsToBounds = YES;
 			backgroundView.layer.cornerRadius = widgetCorner;
@@ -135,11 +134,7 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 			if(colorizeBackground)
 			{
 				if(customBackgroundColorEnabled) self.bgColor = customBackgroundColor;
-				else
-				{
-					UIImage *appIcon = headerContentView.icons[0];
-					if(appIcon) self.bgColor = [appIcon mergedColor];
-				}
+				else self.bgColor = [self calculateWidgetBgColor];
 
 				if(self.bgColor) 
 				{
@@ -152,20 +147,36 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 			{
 				if(customBorderColorEnabled) self.borderColor = customBorderColor;
 				else if(self.bgColor) self.borderColor = getContrastColorBasedOnBackgroundColor(self.bgColor);
+				else
+				{
+					self.bgColor = [self calculateWidgetBgColor];
+					if(self.bgColor) self.borderColor = getContrastColorBasedOnBackgroundColor(self.bgColor);
+				}
 
 				if(self.borderColor)
 				{
 					backgroundView.layer.borderColor = self.borderColor.CGColor;
-					backgroundView.layer.borderWidth = 3.0f;
+					backgroundView.layer.borderWidth = borderWidth;
 
 					if(!tranparentWidgetHeader)
 					{
 						headerBackgroundView.layer.borderColor = self.borderColor.CGColor;
-						headerBackgroundView.layer.borderWidth = 3.0f;
+						headerBackgroundView.layer.borderWidth = borderWidth;
 					}
 				}
 			}
 		}
+	}
+
+	%new
+	- (UIColor*)calculateWidgetBgColor
+	{
+		UIColor *c;
+		UIImage *appIcon;
+		WGPlatterHeaderContentView *headerContentView = MSHookIvar<WGPlatterHeaderContentView*>(self, "_headerContentView");
+		if(headerContentView) appIcon = headerContentView.icons[0];
+		if(appIcon) c = [appIcon mergedColor];
+		return c;
 	}
 
 	%end
@@ -186,6 +197,7 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 			@"customBackgroundColorEnabled": @NO,
 			@"colorizeBorder": @NO,
 			@"customBorderColorEnabled": @NO,
+			@"borderWidth": @3,
 			@"tranparentWidgetHeader": @NO,
 			@"widgetCorner": @13
     	}];
@@ -197,6 +209,7 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 		customBackgroundColorEnabled = [pref boolForKey: @"customBackgroundColorEnabled"];
 		colorizeBorder = [pref boolForKey: @"colorizeBorder"];
 		customBorderColorEnabled = [pref boolForKey: @"customBorderColorEnabled"];
+		borderWidth = [pref integerForKey: @"borderWidth"];
 		tranparentWidgetHeader = [pref boolForKey: @"tranparentWidgetHeader"];
 		widgetCorner = [pref integerForKey: @"widgetCorner"];
 

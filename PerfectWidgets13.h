@@ -20,6 +20,7 @@ UIColor *customBorderColor;
 BOOL tranparentWidgetHeader;
 
 NSInteger widgetCorner;
+NSInteger borderWidth;
 
 @interface WGWidgetListHeaderView: UIView
 @end
@@ -39,6 +40,7 @@ NSInteger widgetCorner;
 - (UIView*)contentView;
 - (void)colorizeWidget;
 - (UIButton*)showMoreButton;
+- (UIColor*)calculateWidgetBgColor;
 @end
 
 @interface PLPlatterHeaderContentView: UIView
