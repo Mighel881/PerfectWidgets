@@ -1,27 +1,3 @@
-#import <Cephei/HBPreferences.h>
-#import "SparkColourPickerUtils.h"
-
-HBPreferences *pref;
-
-BOOL hideClock;
-BOOL hideWeatherProvided;
-BOOL alwaysExtendedWidgets;
-
-BOOL colorizeBackground;
-BOOL customBackgroundColorEnabled;
-NSString *customBackgroundColorString;
-UIColor *customBackgroundColor;
-
-BOOL colorizeBorder;
-BOOL customBorderColorEnabled;
-NSString *customBorderColorString;
-UIColor *customBorderColor;
-
-BOOL tranparentWidgetHeader;
-
-NSInteger widgetCorner;
-NSInteger borderWidth;
-
 @interface WGWidgetListHeaderView: UIView
 @end
 

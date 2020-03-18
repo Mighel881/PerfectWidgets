@@ -1,5 +1,22 @@
 #include "PerfectWidgets13.h"
 
+#import <Cephei/HBPreferences.h>
+#import "SparkColourPickerUtils.h"
+
+static HBPreferences *pref;
+static BOOL hideClock;
+static BOOL hideWeatherProvided;
+static BOOL alwaysExtendedWidgets;
+static BOOL colorizeBackground;
+static BOOL customBackgroundColorEnabled;
+static UIColor *customBackgroundColor;
+static BOOL colorizeBorder;
+static BOOL customBorderColorEnabled;
+static UIColor *customBorderColor;
+static BOOL tranparentWidgetHeader;
+static NSInteger widgetCorner;
+static NSInteger borderWidth;
+
 // --------------------------------------------------------------------------
 // --------------------- METHODS FOR CHOOSING COLORS ------------------------
 // --------------------------------------------------------------------------
@@ -10,21 +27,21 @@ static UIColor *lighterColorForColor(UIColor *c)
 {
     CGFloat r, g, b, a;
 	[c getRed: &r green: &g blue: &b alpha: &a];
-    return [UIColor colorWithRed: MIN(r + 0.2, 1.0) green: MIN(g + 0.2, 1.0) blue: MIN(b + 0.2, 1.0) alpha: a];
+    return [UIColor colorWithRed: MIN(r + 0.3, 1.0) green: MIN(g + 0.3, 1.0) blue: MIN(b + 0.3, 1.0) alpha: a];
 }
 
 static UIColor *darkerColorForColor(UIColor *c)
 {
     CGFloat r, g, b, a;
     [c getRed: &r green: &g blue: &b alpha: &a];
-    return [UIColor colorWithRed: MAX(r - 0.2, 0.0) green: MAX(g - 0.2, 0.0) blue: MAX(b - 0.2, 0.0) alpha: a];
+    return [UIColor colorWithRed: MAX(r - 0.3, 0.0) green: MAX(g - 0.3, 0.0) blue: MAX(b - 0.3, 0.0) alpha: a];
 }
 
 static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 {
-	CGFloat brightness;
-	[backgroundColor getHue: nil saturation: nil brightness: &brightness alpha: nil];
-	if(brightness <= 0.5) return lighterColorForColor(backgroundColor);
+	const CGFloat *rgb = CGColorGetComponents(backgroundColor.CGColor);
+    double luminance = 0.299 * rgb[0] + 0.587 * rgb[1] + 0.114 * rgb[2];
+	if(luminance <= 0.5) return lighterColorForColor(backgroundColor);
 	else return darkerColorForColor(backgroundColor);
 }
 
@@ -114,6 +131,41 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 		if (![self listItem]) return;
 		
 		if(alwaysExtendedWidgets) [self.showMoreButton setHidden: YES];
+
+		[self colorizeWidget];
+	}
+
+	-(void)_layoutContentView
+	{
+		%orig;
+
+		[self colorizeWidget];
+	}
+
+	-(void)_configureHeaderViewsIfNecessary
+	{
+		%orig;
+
+		[self colorizeWidget];
+	}
+
+	-(void)_configureBackgroundMaterialViewIfNecessary
+	{
+		%orig;
+
+		[self colorizeWidget];
+	}
+
+	-(void)_layoutHeaderViews
+	{
+		%orig;
+
+		[self colorizeWidget];
+	}
+
+	-(void)_updateHeaderContentViewVisualStyling
+	{
+		%orig;
 
 		[self colorizeWidget];
 	}
@@ -216,14 +268,9 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 		if(customBackgroundColorEnabled || customBorderColorEnabled)
 		{
 			NSDictionary *preferencesDictionary = [NSDictionary dictionaryWithContentsOfFile: @"/var/mobile/Library/Preferences/com.johnzaro.perfectwidgets13prefs.colors.plist"];
-			if(preferencesDictionary)
-			{
-				customBackgroundColorString = [preferencesDictionary objectForKey: @"customBackgroundColor"];
-				customBorderColorString = [preferencesDictionary objectForKey: @"customBorderColor"];
-			}
 			
-			customBackgroundColor = [SparkColourPickerUtils colourWithString: customBackgroundColorString withFallback: @"#FF9400"];
-			customBorderColor = [SparkColourPickerUtils colourWithString: customBorderColorString withFallback: @"#FF9400"];
+			customBackgroundColor = [SparkColourPickerUtils colourWithString: [preferencesDictionary objectForKey: @"customBackgroundColor"] withFallback: @"#FF9400"];
+			customBorderColor = [SparkColourPickerUtils colourWithString: [preferencesDictionary objectForKey: @"customBorderColor"] withFallback: @"#FF9400"];
 		}
 
 		if(alwaysExtendedWidgets) %init(alwaysExtendedWidgetsGroup);

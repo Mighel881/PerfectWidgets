@@ -76,13 +76,26 @@
 
 - (void)reset: (PSSpecifier*)specifier
 {
-    [[[HBPreferences alloc] initWithIdentifier: @"com.johnzaro.perfectwidgets13prefs"] removeAllObjects];
+    UIAlertController *reset = [UIAlertController
+        alertControllerWithTitle: @"PerfectWidgets13"
+		message: @"Do you really want to Reset All Settings?"
+		preferredStyle: UIAlertControllerStyleAlert];
+	UIAlertAction *confirmAction = [UIAlertAction actionWithTitle: @"Confirm" style: UIAlertActionStyleDestructive handler:
+        ^(UIAlertAction * action)
+        {
+            [[[HBPreferences alloc] initWithIdentifier: @"com.johnzaro.perfectwidgets13prefs"] removeAllObjects];
 
-    NSFileManager *manager = [NSFileManager defaultManager];
-    [manager removeItemAtPath:@"/var/mobile/Library/Preferences/com.johnzaro.perfectwidgets13prefs.plist" error: nil];
-    [manager removeItemAtPath:@"/var/mobile/Library/Preferences/com.johnzaro.perfectwidgets13prefs.colors.plist" error: nil];
-    
-    [self respring];
+            NSFileManager *manager = [NSFileManager defaultManager];
+            [manager removeItemAtPath:@"/var/mobile/Library/Preferences/com.johnzaro.perfectwidgets13prefs.plist" error: nil];
+            [manager removeItemAtPath:@"/var/mobile/Library/Preferences/com.johnzaro.perfectwidgets13prefs.colors.plist" error: nil];
+            
+            [self respring];
+        }];
+
+	UIAlertAction *cancelAction = [UIAlertAction actionWithTitle: @"Cancel" style: UIAlertActionStyleCancel handler: nil];
+	[reset addAction: confirmAction];
+	[reset addAction: cancelAction];
+	[self presentViewController: reset animated: YES completion: nil];
 }
 
 - (void)respring
