@@ -7,6 +7,7 @@ static HBPreferences *pref;
 static BOOL hideClock;
 static BOOL hideWeatherProvided;
 static BOOL alwaysExtendedWidgets;
+static BOOL hideNewWidgetsAvailable;
 static BOOL colorizeBackground;
 static BOOL customBackgroundColorEnabled;
 static UIColor *customBackgroundColor;
@@ -109,6 +110,19 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 	- (id)initWithWidgetAttributedString: (id)arg
 	{
 		return %orig(NULL);
+	}
+
+	%end
+
+%end
+
+%group hideNewWidgetsAvailableGroup
+
+	%hook WGWidgetListFooterView
+
+	-(void)_availableWidgetsUpdated:(id)arg1
+	{
+
 	}
 
 	%end
@@ -245,6 +259,7 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 			@"alwaysExtendedWidgets": @NO,
 			@"hideClock": @NO,
 			@"hideWeatherProvided": @NO,
+			@"hideNewWidgetsAvailable": @NO,
 			@"colorizeBackground": @NO,
 			@"customBackgroundColorEnabled": @NO,
 			@"colorizeBorder": @NO,
@@ -257,6 +272,7 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 		alwaysExtendedWidgets = [pref boolForKey: @"alwaysExtendedWidgets"];
 		hideClock = [pref boolForKey: @"hideClock"];
 		hideWeatherProvided = [pref boolForKey: @"hideWeatherProvided"];
+		hideNewWidgetsAvailable = [pref boolForKey: @"hideNewWidgetsAvailable"];
 		colorizeBackground = [pref boolForKey: @"colorizeBackground"];
 		customBackgroundColorEnabled = [pref boolForKey: @"customBackgroundColorEnabled"];
 		colorizeBorder = [pref boolForKey: @"colorizeBorder"];
@@ -276,6 +292,7 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 		if(alwaysExtendedWidgets) %init(alwaysExtendedWidgetsGroup);
 		if(hideClock) %init(hideClockGroup);
 		if(hideWeatherProvided) %init(hideWeatherProvidedGroup);
+		if(hideNewWidgetsAvailable) %init(hideNewWidgetsAvailableGroup);
 		%init(colorizeWidgetsGroup);
 	}
 }
