@@ -1,10 +1,11 @@
-#include "PerfectWidgets13.h"
+#import "PerfectWidgets13.h"
 
 #import <Cephei/HBPreferences.h>
 #import "SparkColourPickerUtils.h"
 
 static HBPreferences *pref;
 static BOOL hideClock;
+static BOOL hideSearchBar;
 static BOOL hideWeatherProvided;
 static BOOL alwaysExtendedWidgets;
 static BOOL hideNewWidgetsAvailable;
@@ -64,6 +65,19 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 }
 
 @end
+
+%group hideSearchBarGroup
+
+	%hook SBSearchBar
+
+	-(void)setFrame:(CGRect)arg1 
+	{
+		%orig(CGRectMake(0, 0, 0, 55));
+	}
+
+	%end
+
+%end
 
 // ------------------------------ ALWAYS EXTENDED WIDGETS ------------------------------
 
@@ -258,6 +272,7 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 		@{
 			@"alwaysExtendedWidgets": @NO,
 			@"hideClock": @NO,
+			@"hideSearchBar": @NO,
 			@"hideWeatherProvided": @NO,
 			@"hideNewWidgetsAvailable": @NO,
 			@"colorizeBackground": @NO,
@@ -271,6 +286,7 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 
 		alwaysExtendedWidgets = [pref boolForKey: @"alwaysExtendedWidgets"];
 		hideClock = [pref boolForKey: @"hideClock"];
+		hideSearchBar = [pref boolForKey: @"hideSearchBar"];
 		hideWeatherProvided = [pref boolForKey: @"hideWeatherProvided"];
 		hideNewWidgetsAvailable = [pref boolForKey: @"hideNewWidgetsAvailable"];
 		colorizeBackground = [pref boolForKey: @"colorizeBackground"];
@@ -291,6 +307,7 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 
 		if(alwaysExtendedWidgets) %init(alwaysExtendedWidgetsGroup);
 		if(hideClock) %init(hideClockGroup);
+		if(hideSearchBar) %init(hideSearchBarGroup);
 		if(hideWeatherProvided) %init(hideWeatherProvidedGroup);
 		if(hideNewWidgetsAvailable) %init(hideNewWidgetsAvailableGroup);
 		%init(colorizeWidgetsGroup);
