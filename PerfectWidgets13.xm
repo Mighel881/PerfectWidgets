@@ -12,9 +12,11 @@ static BOOL hideNewWidgetsAvailable;
 static BOOL colorizeBackground;
 static BOOL customBackgroundColorEnabled;
 static UIColor *customBackgroundColor;
+static float backgroundAlpha;
 static BOOL colorizeBorder;
 static BOOL customBorderColorEnabled;
 static UIColor *customBorderColor;
+static float borderAlpha;
 static BOOL tranparentWidgetHeader;
 static NSInteger widgetCorner;
 static NSInteger borderWidth;
@@ -230,6 +232,8 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 			{
 				if(customBackgroundColorEnabled) [self setBgColor: customBackgroundColor];
 				else [self setBgColor: [self calculateWidgetBgColor]];
+				
+				[self setBgColor: [[self bgColor] colorWithAlphaComponent: backgroundAlpha]];
 
 				if([self bgColor]) 
 				{
@@ -247,6 +251,8 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 					[self setBgColor: [self calculateWidgetBgColor]];
 					if([self bgColor]) [self setBorderColor: getContrastColorBasedOnBackgroundColor([self bgColor])];
 				}
+
+				[self setBorderColor: [[self borderColor] colorWithAlphaComponent: borderAlpha]];
 
 				if([self borderColor])
 				{
@@ -292,9 +298,11 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 			@"hideNewWidgetsAvailable": @NO,
 			@"colorizeBackground": @NO,
 			@"customBackgroundColorEnabled": @NO,
+			@"backgroundAlpha": @1,
 			@"colorizeBorder": @NO,
 			@"customBorderColorEnabled": @NO,
 			@"borderWidth": @3,
+			@"borderAlpha": @1,
 			@"tranparentWidgetHeader": @NO,
 			@"widgetCorner": @13,
 			@"disableTopLeftCornerRadius": @NO,
@@ -310,9 +318,11 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 		hideNewWidgetsAvailable = [pref boolForKey: @"hideNewWidgetsAvailable"];
 		colorizeBackground = [pref boolForKey: @"colorizeBackground"];
 		customBackgroundColorEnabled = [pref boolForKey: @"customBackgroundColorEnabled"];
+		backgroundAlpha = [pref floatForKey: @"backgroundAlpha"];
 		colorizeBorder = [pref boolForKey: @"colorizeBorder"];
 		customBorderColorEnabled = [pref boolForKey: @"customBorderColorEnabled"];
 		borderWidth = [pref integerForKey: @"borderWidth"];
+		borderAlpha = [pref floatForKey: @"borderAlpha"];
 		tranparentWidgetHeader = [pref boolForKey: @"tranparentWidgetHeader"];
 		widgetCorner = [pref integerForKey: @"widgetCorner"];
 		disableTopLeftCornerRadius = [pref boolForKey: @"disableTopLeftCornerRadius"];

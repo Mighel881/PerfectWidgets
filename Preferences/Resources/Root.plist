@@ -133,6 +133,32 @@
         	<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>label</key>
+			<string>BACKGROUND ALPHA</string>
+        </dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSliderCell</string>
+			<key>default</key>
+			<integer>1</integer>
+			<key>defaults</key>
+			<string>com.johnzaro.perfectwidgets13prefs</string>
+			<key>key</key>
+			<string>backgroundAlpha</string>
+			<key>isSegmented</key>
+			<true/>
+			<key>segmentCount</key>
+			<integer>10</integer>
+			<key>min</key>
+			<integer>0</integer>
+			<key>max</key>
+			<integer>1</integer>
+			<key>showValue</key>
+			<true/>
+		</dict>
+		<dict>
+        	<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
 			<string>WIDGET BORDER</string>
         </dict>
 		<dict>
@@ -179,6 +205,32 @@
 			<string>Custom Border Color</string>
 			<key>key</key>
 			<string>customBorderColor</string>
+		</dict>
+		<dict>
+        	<key>cell</key>
+			<string>PSGroupCell</string>
+			<key>label</key>
+			<string>BORDER ALPHA</string>
+        </dict>
+		<dict>
+			<key>cell</key>
+			<string>PSSliderCell</string>
+			<key>default</key>
+			<integer>1</integer>
+			<key>defaults</key>
+			<string>com.johnzaro.perfectwidgets13prefs</string>
+			<key>key</key>
+			<string>borderAlpha</string>
+			<key>isSegmented</key>
+			<true/>
+			<key>segmentCount</key>
+			<integer>10</integer>
+			<key>min</key>
+			<integer>0</integer>
+			<key>max</key>
+			<integer>1</integer>
+			<key>showValue</key>
+			<true/>
 		</dict>
 		<dict>
         	<key>cell</key>
