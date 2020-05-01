@@ -4,6 +4,7 @@
 #import "SparkColourPickerUtils.h"
 
 static HBPreferences *pref;
+static BOOL enabled;
 static BOOL hideClock;
 static BOOL hideSearchBar;
 static BOOL hideWeatherProvided;
@@ -283,6 +284,7 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 		pref = [[HBPreferences alloc] initWithIdentifier: @"com.johnzaro.perfectwidgets13prefs"];
 		[pref registerDefaults:
 		@{
+			@"enabled": @NO,
 			@"alwaysExtendedWidgets": @NO,
 			@"hideClock": @NO,
 			@"hideSearchBar": @NO,
@@ -303,47 +305,51 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 			@"disableBottomRightCornerRadius": @NO
     	}];
 
-		alwaysExtendedWidgets = [pref boolForKey: @"alwaysExtendedWidgets"];
-		hideClock = [pref boolForKey: @"hideClock"];
-		hideSearchBar = [pref boolForKey: @"hideSearchBar"];
-		hideWeatherProvided = [pref boolForKey: @"hideWeatherProvided"];
-		hideNewWidgetsAvailable = [pref boolForKey: @"hideNewWidgetsAvailable"];
-		colorizeBackground = [pref boolForKey: @"colorizeBackground"];
-		customBackgroundColorEnabled = [pref boolForKey: @"customBackgroundColorEnabled"];
-		backgroundAlpha = [pref floatForKey: @"backgroundAlpha"];
-		colorizeBorder = [pref boolForKey: @"colorizeBorder"];
-		customBorderColorEnabled = [pref boolForKey: @"customBorderColorEnabled"];
-		borderWidth = [pref integerForKey: @"borderWidth"];
-		borderAlpha = [pref floatForKey: @"borderAlpha"];
-		tranparentWidgetHeader = [pref boolForKey: @"tranparentWidgetHeader"];
-		widgetCorner = [pref integerForKey: @"widgetCorner"];
-		disableTopLeftCornerRadius = [pref boolForKey: @"disableTopLeftCornerRadius"];
-		disableTopRightCornerRadius = [pref boolForKey: @"disableTopRightCornerRadius"];
-		disableBottomLeftCornerRadius = [pref boolForKey: @"disableBottomLeftCornerRadius"];
-		disableBottomRightCornerRadius = [pref boolForKey: @"disableBottomRightCornerRadius"];
-
-		if(!disableTopLeftCornerRadius)
-			cornerMask += kCALayerMinXMinYCorner;
-		if(!disableTopRightCornerRadius)
-			cornerMask += kCALayerMaxXMinYCorner;
-		if(!disableBottomLeftCornerRadius)
-			cornerMask += kCALayerMinXMaxYCorner;
-		if(!disableBottomRightCornerRadius)
-			cornerMask += kCALayerMaxXMaxYCorner;
-
-		if(customBackgroundColorEnabled || customBorderColorEnabled)
+		enabled = [pref boolForKey: @"enabled"];
+		if(enabled)
 		{
-			NSDictionary *preferencesDictionary = [NSDictionary dictionaryWithContentsOfFile: @"/var/mobile/Library/Preferences/com.johnzaro.perfectwidgets13prefs.colors.plist"];
-			
-			customBackgroundColor = [SparkColourPickerUtils colourWithString: [preferencesDictionary objectForKey: @"customBackgroundColor"] withFallback: @"#FF9400"];
-			customBorderColor = [SparkColourPickerUtils colourWithString: [preferencesDictionary objectForKey: @"customBorderColor"] withFallback: @"#FF9400"];
-		}
+			alwaysExtendedWidgets = [pref boolForKey: @"alwaysExtendedWidgets"];
+			hideClock = [pref boolForKey: @"hideClock"];
+			hideSearchBar = [pref boolForKey: @"hideSearchBar"];
+			hideWeatherProvided = [pref boolForKey: @"hideWeatherProvided"];
+			hideNewWidgetsAvailable = [pref boolForKey: @"hideNewWidgetsAvailable"];
+			colorizeBackground = [pref boolForKey: @"colorizeBackground"];
+			customBackgroundColorEnabled = [pref boolForKey: @"customBackgroundColorEnabled"];
+			backgroundAlpha = [pref floatForKey: @"backgroundAlpha"];
+			colorizeBorder = [pref boolForKey: @"colorizeBorder"];
+			customBorderColorEnabled = [pref boolForKey: @"customBorderColorEnabled"];
+			borderWidth = [pref integerForKey: @"borderWidth"];
+			borderAlpha = [pref floatForKey: @"borderAlpha"];
+			tranparentWidgetHeader = [pref boolForKey: @"tranparentWidgetHeader"];
+			widgetCorner = [pref integerForKey: @"widgetCorner"];
+			disableTopLeftCornerRadius = [pref boolForKey: @"disableTopLeftCornerRadius"];
+			disableTopRightCornerRadius = [pref boolForKey: @"disableTopRightCornerRadius"];
+			disableBottomLeftCornerRadius = [pref boolForKey: @"disableBottomLeftCornerRadius"];
+			disableBottomRightCornerRadius = [pref boolForKey: @"disableBottomRightCornerRadius"];
 
-		if(alwaysExtendedWidgets) %init(alwaysExtendedWidgetsGroup);
-		if(hideClock) %init(hideClockGroup);
-		if(hideSearchBar) %init(hideSearchBarGroup);
-		if(hideWeatherProvided) %init(hideWeatherProvidedGroup);
-		if(hideNewWidgetsAvailable) %init(hideNewWidgetsAvailableGroup);
-		%init(colorizeWidgetsGroup);
+			if(!disableTopLeftCornerRadius)
+				cornerMask += kCALayerMinXMinYCorner;
+			if(!disableTopRightCornerRadius)
+				cornerMask += kCALayerMaxXMinYCorner;
+			if(!disableBottomLeftCornerRadius)
+				cornerMask += kCALayerMinXMaxYCorner;
+			if(!disableBottomRightCornerRadius)
+				cornerMask += kCALayerMaxXMaxYCorner;
+
+			if(customBackgroundColorEnabled || customBorderColorEnabled)
+			{
+				NSDictionary *preferencesDictionary = [NSDictionary dictionaryWithContentsOfFile: @"/var/mobile/Library/Preferences/com.johnzaro.perfectwidgets13prefs.colors.plist"];
+				
+				customBackgroundColor = [SparkColourPickerUtils colourWithString: [preferencesDictionary objectForKey: @"customBackgroundColor"] withFallback: @"#FF9400"];
+				customBorderColor = [SparkColourPickerUtils colourWithString: [preferencesDictionary objectForKey: @"customBorderColor"] withFallback: @"#FF9400"];
+			}
+
+			if(alwaysExtendedWidgets) %init(alwaysExtendedWidgetsGroup);
+			if(hideClock) %init(hideClockGroup);
+			if(hideSearchBar) %init(hideSearchBarGroup);
+			if(hideWeatherProvided) %init(hideWeatherProvidedGroup);
+			if(hideNewWidgetsAvailable) %init(hideNewWidgetsAvailableGroup);
+			%init(colorizeWidgetsGroup);
+		}
 	}
 }
