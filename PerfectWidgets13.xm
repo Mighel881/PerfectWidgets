@@ -25,6 +25,8 @@ static BOOL disableTopRightCornerRadius;
 static BOOL disableBottomLeftCornerRadius;
 static BOOL disableBottomRightCornerRadius;
 
+int cornerMask = 0;
+
 // --------------------------------------------------------------------------
 // --------------------- METHODS FOR CHOOSING COLORS ------------------------
 // --------------------------------------------------------------------------
@@ -214,16 +216,6 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 		{
 			[backgroundView setClipsToBounds: YES];
 			[[backgroundView layer] setCornerRadius: widgetCorner];
-
-			int cornerMask = 0;
-			if(!disableTopLeftCornerRadius)
-				cornerMask += kCALayerMinXMinYCorner;
-			if(!disableTopRightCornerRadius)
-				cornerMask += kCALayerMaxXMinYCorner;
-			if(!disableBottomLeftCornerRadius)
-				cornerMask += kCALayerMinXMaxYCorner;
-			if(!disableBottomRightCornerRadius)
-				cornerMask += kCALayerMaxXMaxYCorner;
 			[[backgroundView layer] setMaskedCorners: cornerMask];
 
 			if(tranparentWidgetHeader) [headerBackgroundView setAlpha: 0];
@@ -232,7 +224,7 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 			{
 				if(customBackgroundColorEnabled) [self setBgColor: customBackgroundColor];
 				else [self setBgColor: [self calculateWidgetBgColor]];
-				
+
 				[self setBgColor: [[self bgColor] colorWithAlphaComponent: backgroundAlpha]];
 
 				if([self bgColor]) 
@@ -329,6 +321,15 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 		disableTopRightCornerRadius = [pref boolForKey: @"disableTopRightCornerRadius"];
 		disableBottomLeftCornerRadius = [pref boolForKey: @"disableBottomLeftCornerRadius"];
 		disableBottomRightCornerRadius = [pref boolForKey: @"disableBottomRightCornerRadius"];
+
+		if(!disableTopLeftCornerRadius)
+			cornerMask += kCALayerMinXMinYCorner;
+		if(!disableTopRightCornerRadius)
+			cornerMask += kCALayerMaxXMinYCorner;
+		if(!disableBottomLeftCornerRadius)
+			cornerMask += kCALayerMinXMaxYCorner;
+		if(!disableBottomRightCornerRadius)
+			cornerMask += kCALayerMaxXMaxYCorner;
 
 		if(customBackgroundColorEnabled || customBorderColorEnabled)
 		{
