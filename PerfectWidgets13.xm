@@ -27,6 +27,7 @@ static BOOL disableBottomLeftCornerRadius;
 static BOOL disableBottomRightCornerRadius;
 
 int cornerMask = 0;
+int headerCornerMask = 0;
 
 // --------------------------------------------------------------------------
 // --------------------- METHODS FOR CHOOSING COLORS ------------------------
@@ -158,52 +159,41 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 
 	%hook WGWidgetPlatterView
 
-	%property(nonatomic, retain) UIColor *bgColor;
-	%property(nonatomic, retain) UIColor *borderColor;
-
 	- (void)layoutSubviews
 	{
 		%orig;
 
-		if (![self listItem]) return;
-		
 		if(alwaysExtendedWidgets) [[self showMoreButton] setHidden: YES];
-
 		[self colorizeWidget];
 	}
 
 	- (void)_layoutContentView
 	{
 		%orig;
-
 		[self colorizeWidget];
 	}
 
 	- (void)_configureHeaderViewsIfNecessary
 	{
 		%orig;
-
 		[self colorizeWidget];
 	}
 
 	- (void)_configureBackgroundMaterialViewIfNecessary
 	{
 		%orig;
-
 		[self colorizeWidget];
 	}
 
 	- (void)_layoutHeaderViews
 	{
 		%orig;
-
 		[self colorizeWidget];
 	}
 
 	- (void)_updateHeaderContentViewVisualStyling
 	{
 		%orig;
-
 		[self colorizeWidget];
 	}
 
@@ -213,64 +203,93 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 		MTMaterialView *headerBackgroundView = MSHookIvar<MTMaterialView*>(self, "_headerBackgroundView");
 		MTMaterialView *backgroundView = MSHookIvar<MTMaterialView*>(self, "_backgroundView");
 
-		if(backgroundView && headerBackgroundView)
+		[backgroundView setClipsToBounds: YES];
+		[[backgroundView layer] setCornerRadius: widgetCorner];
+		[[backgroundView layer] setMaskedCorners: cornerMask];
+		[[headerBackgroundView layer] setCornerRadius: widgetCorner];
+		[[headerBackgroundView layer] setMaskedCorners: headerCornerMask];
+
+		if(tranparentWidgetHeader)
+			[headerBackgroundView setAlpha: 0];
+
+		if(![self widgetBackgroundColor] && (colorizeBackground || colorizeBorder))
 		{
-			[backgroundView setClipsToBounds: YES];
-			[[backgroundView layer] setCornerRadius: widgetCorner];
-			[[backgroundView layer] setMaskedCorners: cornerMask];
+			if(customBackgroundColorEnabled)
+				[self setWidgetBackgroundColor: [customBackgroundColor colorWithAlphaComponent: backgroundAlpha]];
+			else
+				[self setWidgetBackgroundColor: [[MSHookIvar<WGPlatterHeaderContentView*>(self, "_headerContentView") iconAverageColor] colorWithAlphaComponent: backgroundAlpha]];
 
-			if(tranparentWidgetHeader) [headerBackgroundView setAlpha: 0];
+			if(customBorderColorEnabled)
+				[self setWidgetBorderColor: [customBorderColor colorWithAlphaComponent: borderAlpha]];
+			else if([self widgetBackgroundColor])
+				[self setWidgetBorderColor: [getContrastColorBasedOnBackgroundColor([self widgetBackgroundColor]) colorWithAlphaComponent: borderAlpha]];
+		}
 
-			if(colorizeBackground)
+		if(colorizeBackground)
+		{
+			[backgroundView setBackgroundColor: [self widgetBackgroundColor]];
+			if(!tranparentWidgetHeader)
+				[headerBackgroundView setBackgroundColor: [self widgetBackgroundColor]];
+		}
+
+		if(colorizeBorder)
+		{
+			[[backgroundView layer] setBorderColor: [self widgetBorderColor].CGColor];
+			[[backgroundView layer] setBorderWidth: borderWidth];
+
+			if(!tranparentWidgetHeader)
 			{
-				if(customBackgroundColorEnabled) [self setBgColor: customBackgroundColor];
-				else [self setBgColor: [self calculateWidgetBgColor]];
-
-				[self setBgColor: [[self bgColor] colorWithAlphaComponent: backgroundAlpha]];
-
-				if([self bgColor]) 
-				{
-					[backgroundView setBackgroundColor: [self bgColor]];
-					if(!tranparentWidgetHeader) [headerBackgroundView setBackgroundColor: [self bgColor]];
-				}
-			}
-
-			if(colorizeBorder)
-			{
-				if(customBorderColorEnabled) [self setBorderColor: customBorderColor];
-				else if([self bgColor]) [self setBorderColor: getContrastColorBasedOnBackgroundColor([self bgColor])];
-				else
-				{
-					[self setBgColor: [self calculateWidgetBgColor]];
-					if([self bgColor]) [self setBorderColor: getContrastColorBasedOnBackgroundColor([self bgColor])];
-				}
-
-				[self setBorderColor: [[self borderColor] colorWithAlphaComponent: borderAlpha]];
-
-				if([self borderColor])
-				{
-					[[backgroundView layer] setBorderColor: [self borderColor].CGColor];
-					[[backgroundView layer] setBorderWidth: borderWidth];
-
-					if(!tranparentWidgetHeader)
-					{
-						[[headerBackgroundView layer] setBorderColor: [self borderColor].CGColor];
-						[[headerBackgroundView layer] setBorderWidth: borderWidth];
-					}
-				}
+				[[headerBackgroundView layer] setBorderColor: [self widgetBorderColor].CGColor];
+				[[headerBackgroundView layer] setBorderWidth: borderWidth];
 			}
 		}
 	}
 
 	%new
-	- (UIColor*)calculateWidgetBgColor
+	- (UIColor*)widgetBackgroundColor
 	{
-		UIColor *c;
-		UIImage *appIcon;
-		WGPlatterHeaderContentView *headerContentView = MSHookIvar<WGPlatterHeaderContentView*>(self, "_headerContentView");
-		if(headerContentView) appIcon = [headerContentView icons][0];
-		if(appIcon) c = [appIcon mergedColor];
-		return c;
+		return (UIColor*)objc_getAssociatedObject(self, @selector(widgetBackgroundColor));
+	}
+
+	%new
+	- (void)setWidgetBackgroundColor: (UIColor*)color
+	{
+		objc_setAssociatedObject(self, @selector(widgetBackgroundColor), color, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	}
+
+	%new
+	- (UIColor*)widgetBorderColor
+	{
+		return (UIColor*)objc_getAssociatedObject(self, @selector(widgetBorderColor));
+	}
+
+	%new
+	- (void)setWidgetBorderColor: (UIColor*)color
+	{
+		objc_setAssociatedObject(self, @selector(widgetBorderColor), color, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+	}
+
+	%end
+
+	%hook WGPlatterHeaderContentView
+
+	- (void)setIcons: (NSArray*)icons
+	{
+		if(icons && icons[0] && colorizeBackground && !customBackgroundColorEnabled || colorizeBorder && !customBorderColorEnabled)
+			[self setIconAverageColor: [icons[0] mergedColor]];
+		%orig;
+	}
+
+	%new
+	- (UIColor*)iconAverageColor
+	{
+		return (UIColor*)objc_getAssociatedObject(self, @selector(iconAverageColor));
+	}
+
+	%new
+	- (void)setIconAverageColor: (UIColor*)color
+	{
+		objc_setAssociatedObject(self, @selector(iconAverageColor), color, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 	}
 
 	%end
@@ -328,9 +347,15 @@ static UIColor *getContrastColorBasedOnBackgroundColor(UIColor *backgroundColor)
 			disableBottomRightCornerRadius = [pref boolForKey: @"disableBottomRightCornerRadius"];
 
 			if(!disableTopLeftCornerRadius)
+			{
 				cornerMask += kCALayerMinXMinYCorner;
+				headerCornerMask += kCALayerMinXMinYCorner;
+			}	
 			if(!disableTopRightCornerRadius)
+			{
 				cornerMask += kCALayerMaxXMinYCorner;
+				headerCornerMask += kCALayerMaxXMinYCorner;
+			}	
 			if(!disableBottomLeftCornerRadius)
 				cornerMask += kCALayerMinXMaxYCorner;
 			if(!disableBottomRightCornerRadius)
