@@ -5,7 +5,7 @@
 	<key>entry</key>
 	<dict>
 		<key>bundle</key>
-		<string>PerfectWidgets13Prefs</string>
+		<string>PerfectWidgetsPrefs</string>
 		<key>cell</key>
 		<string>PSLinkCell</string>
 		<key>detail</key>
@@ -15,7 +15,7 @@
 		<key>isController</key>
 		<true/>
 		<key>label</key>
-		<string>PerfectWidgets13</string>
+		<string>PerfectWidgets</string>
 	</dict>
 </dict>
 </plist>
